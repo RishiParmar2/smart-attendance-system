@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System - Faculty Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-dark-bg: #020617;
+            --color-card-bg: #0f172a;
+            --color-border: #1e293b;
+            --color-neon-purple: #a855f7;
+            --color-neon-blue: #3b82f6;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --glow-intensity: 0.3;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--color-dark-bg) 0%, #0a0f1f 100%);
+            color: var(--color-text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container-main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation Header */
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-session {
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        /* Main Content */
+        .content-wrapper {
+            padding: 2rem 0;
+        }
+
+        /* Configuration Panel */
+        .config-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+        }
+
+        .form-label {
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--color-neon-purple);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+            outline: none;
+            color: var(--color-text-primary);
+        }
+
+        .form-control::placeholder {
+            color: rgba(203, 213, 225, 0.5);
+        }
+
+        .btn-primary-neon {
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+            color: white;
+        }
+
+        .btn-primary-neon:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary-neon {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--color-neon-blue);
+            color: var(--color-neon-blue);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .btn-secondary-neon:hover {
+            background: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            color: var(--color-neon-blue);
+        }
+
+        /* Active Session Panel */
+        .session-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            display: none;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+        }
+
+        .session-panel.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .qr-container {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 2px solid var(--color-neon-purple);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+        }
+
+        .qr-code {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .qr-code img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .countdown-timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-neon-purple);
+            margin-top: 1rem;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        /* Verification Code Badge */
+        .verification-code-container {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 2px dashed var(--color-neon-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .verification-code-container.revealed {
+            display: block;
+            animation: codeReveal 0.6s ease-out;
+        }
+
+        @keyframes codeReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .verification-code-badge {
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            color: white;
+            font-size: 3rem;
+            font-weight: 900;
+            padding: 1.5rem 3rem;
+            border-radius: 12px;
+            letter-spacing: 10px;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Progress Tracking */
+        .progress-section {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+        }
+
+        .progress-stat {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Attendance Records Table */
+        .audit-table {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1.5rem;
+        }
+
+        .search-input {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .search-input:focus {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--color-neon-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--color-border);
+            background: rgba(30, 41, 59, 0.4);
+        }
+
+        thead th {
+            color: var(--color-neon-purple);
+            font-weight: 700;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        tbody td {
+            color: var(--color-text-secondary);
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Export Buttons */
+        .export-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--color-neon-blue);
+            color: var(--color-neon-blue);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .export-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            color: var(--color-neon-blue);
+        }
+
+        /* Alert Notifications */
+        .alert-notification {
+            background: rgba(15, 23, 42, 0.9);
+            border-left: 4px solid var(--color-neon-purple);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+            animation: slideInAlert 0.3s ease-out;
+        }
+
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert-success {
+            border-left-color: var(--color-success);
+        }
+
+        .alert-error {
+            border-left-color: var(--color-error);
+        }
+
+        /* Hidden/Show States */
+        .hidden {
+            display: none !important;
+        }
+
+        .visible {
+            display: block !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .config-panel,
+            .session-panel,
+            .progress-section,
+            .audit-table {
+                padding: 1.5rem;
+            }
+
+            .qr-code {
+                width: 250px;
+                height: 250px;
+            }
+
+            .verification-code-badge {
+                font-size: 2rem;
+                padding: 1rem 2rem;
+                letter-spacing: 5px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .content-wrapper {
+                padding: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Navigation Header -->
+        <nav class="navbar-custom">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="navbar-brand">⚡ Smart Attendance System</div>
+                    <span class="badge-session hidden" id="sessionBadge">Session Active</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <div class="container">
+                <!-- Alerts Container -->
+                <div id="alertsContainer"></div>
+
+                <!-- Configuration Panel -->
+                <div class="config-panel" id="configPanel">
+                    <h2 style="margin-bottom: 1.5rem; color: var(--color-text-primary);">📋 Start New Session</h2>
+                    <form id="sessionForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="className">Class / Batch</label>
+                                <input type="text" class="form-control" id="className" placeholder="e.g., 2024-CS-A" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="subjectName">Subject Name</label>
+                                <input type="text" class="form-control" id="subjectName" placeholder="e.g., Database Systems" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label" for="lectureDetails">Lecture Details (Optional)</label>
+                                <input type="text" class="form-control" id="lectureDetails" placeholder="e.g., Indexing Strategies">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="sessionDuration">Duration (Minutes)</label>
+                                <input type="number" class="form-control" id="sessionDuration" value="60" min="15" max="480" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary-neon">▶ Start Attendance</button>
+                    </form>
+                </div>
+
+                <!-- Active Session Panel -->
+                <div class="session-panel" id="sessionPanel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="margin: 0; color: var(--color-text-primary);">🎯 Live Attendance Session</h2>
+                        <button type="button" class="btn-secondary-neon" id="endSessionBtn">End Session</button>
+                    </div>
+
+                    <!-- QR Code Display -->
+                    <div class="qr-container">
+                        <h4 style="color: var(--color-text-secondary); margin-bottom: 1rem;">📱 Display on Projector</h4>
+                        <div class="qr-code" id="qrCodeDisplay">
+                            <div style="text-align: center; color: var(--color-text-secondary);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+                                <div>QR Code Loading...</div>
+                            </div>
+                        </div>
+                        <div class="countdown-timer" id="countdownTimer">5s</div>
+                    </div>
+
+                    <!-- Verification Code Badge -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <button type="button" class="btn-primary-neon" id="revealCodeBtn">🔓 Reveal Verification Code</button>
+                    </div>
+
+                    <div class="verification-code-container" id="verificationCodeContainer">
+                        <div style="color: var(--color-text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">Tell students to match this code:</div>
+                        <div class="verification-code-badge" id="verificationCodeBadge">XXXX</div>
+                    </div>
+
+                    <!-- Progress Tracking -->
+                    <div class="progress-section">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="progress-stat">
+                                    <div class="stat-number" id="attendanceCount">0</div>
+                                    <div class="stat-label">Students Marked</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="progress-stat">
+                                    <div class="stat-number" id="sessionStatus">ACTIVE</div>
+                                    <div class="stat-label">Session Status</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Buttons -->
+                    <div class="export-section">
+                        <button type="button" class="export-btn" id="copyRollBtn">📋 Copy Roll Numbers</button>
+                        <button type="button" class="export-btn" id="downloadCsvBtn">💾 Download CSV</button>
+                    </div>
+                </div>
+
+                <!-- Attendance Records Table -->
+                <div class="audit-table" id="auditTable" style="display: none;">
+                    <div class="table-header">
+                        <h4 style="margin-bottom: 1rem; color: var(--color-text-primary);">🔍 Attendance Records - Real-time Forensic Audit Log</h4>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search by Roll No, Enrollment No, IP Address, or GPS Location...">
+                    </div>
+                    <div class="table-responsive">
+                        <table id="recordsTable">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Enrollment No</th>
+                                    <th>Marked At</th>
+                                    <th>IP Address</th>
+                                    <th>Device Info</th>
+                                    <th>GPS Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Records will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = '/api';
+        let currentSessionId = null;
+        let qrRefreshInterval = null;
+        let statusRefreshInterval = null;
+        let countdownInterval = null;
+
+        // === UI Utilities ===
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertsContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert-notification alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function startCountdown() {
+            let seconds = 5;
+            const timerEl = document.getElementById('countdownTimer');
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                seconds--;
+                if (seconds <= 0) seconds = 5;
+                timerEl.textContent = `${seconds}s`;
+            }, 1000);
+        }
+
+        // === Session Management ===
+        document.getElementById('sessionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const response = await fetch(`${API_BASE}/faculty/session/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        class_name: document.getElementById('className').value,
+                        subject_name: document.getElementById('subjectName').value,
+                        lecture_details: document.getElementById('lectureDetails').value,
+                        duration_minutes: parseInt(document.getElementById('sessionDuration').value)
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    currentSessionId = data.session_id;
+                    showAlert('Session created successfully! QR codes are now displaying.', 'success');
+                    document.getElementById('configPanel').classList.add('hidden');
+                    document.getElementById('sessionPanel').classList.add('active');
+                    document.getElementById('sessionBadge').classList.remove('hidden');
+                    document.getElementById('auditTable').style.display = 'block';
+                    startQRRefresh();
+                    startStatusRefresh();
+                    startCountdown();
+                } else {
+                    showAlert(data.error || 'Failed to create session', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // === QR Code Generation ===
+        async function generateQRCode() {
+            if (!currentSessionId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/faculty/qr/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const qrDisplay = document.getElementById('qrCodeDisplay');
+                    qrDisplay.innerHTML = `<img src="${data.qr_image}" alt="QR Code">`;
+                    startCountdown();
+                }
+            } catch (error) {
+                console.error('QR Generation Error:', error);
+            }
+        }
+
+        function startQRRefresh() {
+            generateQRCode();
+            if (qrRefreshInterval) clearInterval(qrRefreshInterval);
+            qrRefreshInterval = setInterval(generateQRCode, 5000);
+        }
+
+        // === Verification Code Reveal ===
+        document.getElementById('revealCodeBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/faculty/verification-code/reveal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('verificationCodeBadge').textContent = data.verification_code;
+                    document.getElementById('verificationCodeContainer').classList.add('revealed');
+                    showAlert('Code revealed! Students can now enter it.', 'success');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // === Status Updates ===
+        async function updateSessionStatus() {
+            if (!currentSessionId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/faculty/session/status?session_id=${currentSessionId}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('attendanceCount').textContent = data.attendance_count;
+                    loadAttendanceRecords();
+                }
+            } catch (error) {
+                console.error('Status Update Error:', error);
+            }
+        }
+
+        function startStatusRefresh() {
+            updateSessionStatus();
+            if (statusRefreshInterval) clearInterval(statusRefreshInterval);
+            statusRefreshInterval = setInterval(updateSessionStatus, 3000);
+        }
+
+        // === Attendance Records ===
+        async function loadAttendanceRecords(searchTerm = '', searchField = 'RollNo') {
+            if (!currentSessionId) return;
+
+            try {
+                const url = new URL(`${window.location.origin}${API_BASE}/faculty/attendance/records`);
+                url.searchParams.set('session_id', currentSessionId);
+                if (searchTerm) {
+                    url.searchParams.set('search_term', searchTerm);
+                    url.searchParams.set('search_field', searchField);
+                }
+
+                const response = await fetch(url.toString());
+                const data = await response.json();
+                if (data.success) {
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+                    data.records.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.RollNo}</td>
+                            <td>${record.EnrollmentNo}</td>
+                            <td>${new Date(record.MarkedAt).toLocaleString()}</td>
+                            <td><code>${record.IPAddress || 'N/A'}</code></td>
+                            <td><small>${record.DeviceInfo || 'N/A'}</small></td>
+                            <td><small>${record.GPSLocation || 'Not Available'}</small></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Load Records Error:', error);
+            }
+        }
+
+        // === Search Functionality ===
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            if (searchTerm.length > 0) {
+                loadAttendanceRecords(searchTerm);
+            } else {
+                loadAttendanceRecords();
+            }
+        });
+
+        // === Export Functions ===
+        document.getElementById('copyRollBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/faculty/roll-numbers/copy?session_id=${currentSessionId}`);
+                const data = await response.json();
+                if (data.success) {
+                    await navigator.clipboard.writeText(data.roll_numbers);
+                    showAlert(`Copied ${data.count} roll numbers to clipboard!`, 'success');
+                }
+            } catch (error) {
+                showAlert(`Copy failed: ${error.message}`, 'error');
+            }
+        });
+
+        document.getElementById('downloadCsvBtn').addEventListener('click', () => {
+            window.location.href = `${API_BASE}/faculty/export/csv?session_id=${currentSessionId}`;
+        });
+
+        // === Session End ===
+        document.getElementById('endSessionBtn').addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to end this session?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/faculty/session/end`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (qrRefreshInterval) clearInterval(qrRefreshInterval);
+                    if (statusRefreshInterval) clearInterval(statusRefreshInterval);
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    currentSessionId = null;
+                    document.getElementById('sessionPanel').classList.remove('active');
+                    document.getElementById('configPanel').classList.remove('hidden');
+                    document.getElementById('sessionBadge').classList.add('hidden');
+                    document.getElementById('auditTable').style.display = 'none';
+                    showAlert('Session ended successfully!', 'success');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

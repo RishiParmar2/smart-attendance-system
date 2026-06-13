@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Smart Attendance - Student Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-dark-bg: #020617;
+            --color-card-bg: #0f172a;
+            --color-border: #1e293b;
+            --color-neon-purple: #a855f7;
+            --color-neon-blue: #3b82f6;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--color-dark-bg) 0%, #0a0f1f 100%);
+            color: var(--color-text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container-main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card-premium {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--color-neon-purple);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(203, 213, 225, 0.5);
+        }
+
+        .code-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .code-option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .code-option input[type="radio"] {
+            display: none;
+        }
+
+        .code-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(30, 41, 59, 0.4);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            user-select: none;
+            margin: 0;
+        }
+
+        .code-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            border-color: var(--color-neon-purple);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            color: white;
+        }
+
+        .code-option label:hover {
+            border-color: var(--color-neon-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);
+            border: none;
+            color: white;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            animation: slideInAlert 0.3s ease-out;
+        }
+
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid var(--color-error);
+            color: var(--color-error);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid var(--color-neon-blue);
+            color: var(--color-neon-blue);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .success-splash {
+            text-align: center;
+            animation: successBounce 0.6s ease-out;
+        }
+
+        @keyframes successBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-success);
+            margin-bottom: 1rem;
+        }
+
+        .success-details {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--color-success);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: var(--color-success);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loader {
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top: 4px solid var(--color-neon-purple);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .help-text {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .card-premium {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.5rem;
+            }
+
+            .code-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Main Card -->
+        <div class="card-premium">
+            <!-- Initial Stage: QR Scanner Instruction -->
+            <div id="qrStage" class="card-content">
+                <div class="card-header">
+                    <div class="card-title">📱 Scan QR Code</div>
+                    <div class="card-subtitle">Point your camera at the projector screen</div>
+                </div>
+                <div class="alert alert-info">
+                    <strong>How to proceed:</strong> Use your device's camera to scan the QR code displayed by your faculty member. This will automatically proceed to the verification stage.
+                </div>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">📷</div>
+                    <p style="color: var(--color-text-secondary);">Ready to scan... Point your camera at the QR code</p>
+                </div>
+                <button onclick="initiateScan()" style="background: linear-gradient(135deg, var(--color-neon-purple) 0%, var(--color-neon-blue) 100%);">🔍 Open Camera to Scan</button>
+                <div class="help-text" style="text-align: center; margin-top: 1rem;">
+                    Not working? Use <a href="#" style="color: var(--color-neon-blue);">alternate mode</a> to enter token manually.
+                </div>
+            </div>
+
+            <!-- Credentials & Code Selection Stage -->
+            <div id="verificationStage" class="card-content hidden">
+                <div class="card-header">
+                    <div class="card-title">✅ Verify & Submit</div>
+                    <div class="card-subtitle">Complete your attendance marking</div>
+                </div>
+
+                <!-- Alerts -->
+                <div id="alertContainer"></div>
+
+                <form id="submissionForm">
+                    <!-- Enrollment & Roll Number -->
+                    <div class="form-group">
+                        <label>Enrollment Number</label>
+                        <input type="text" id="enrollmentNo" placeholder="e.g., EN2024001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Roll Number</label>
+                        <input type="text" id="rollNo" placeholder="e.g., 101" required>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <!-- Verification Code Selection -->
+                    <div class="form-group">
+                        <label>Select Code (Match Projector Display)</label>
+                        <div class="code-grid" id="codeGrid">
+                            <!-- Code options will be populated here -->
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn">✓ Mark Attendance</button>
+                </form>
+            </div>
+
+            <!-- Success Splash Screen -->
+            <div id="successStage" class="card-content hidden">
+                <div class="success-splash">
+                    <div class="success-icon">✨</div>
+                    <div class="success-title">Attendance Marked Successfully!</div>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">Your attendance has been securely recorded.</p>
+                    
+                    <div class="success-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Enrollment No:</span>
+                            <span class="detail-value" id="successEnrollment">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Roll No:</span>
+                            <span class="detail-value" id="successRoll">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Marked At:</span>
+                            <span class="detail-value" id="successTime">-</span>
+                        </div>
+                    </div>
+
+                    <button onclick="resetForm()">← Return to Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentSessionId = null;
+        let currentToken = null;
+        const codeOptions = [];
+
+        // === Alert Management ===
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // === QR Scanner ===
+        function initiateScan() {
+            // In production, use jsQR or QrScanner library
+            // For demo, simulate token entry
+            promptTokenEntry();
+        }
+
+        function promptTokenEntry() {
+            const token = prompt('Enter the token from the QR code (or ask your faculty member to read it aloud):');
+            if (token) {
+                verifyToken(token);
+            }
+        }
+
+        async function verifyToken(token) {
+            try {
+                currentToken = token;
+                const response = await fetch(`${API_BASE}/student/verify-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // In production, extract session_id from token payload
+                    // For now, simulate with a test UUID
+                    currentSessionId = 'test-session-' + Date.now();
+                    generateCodeOptions();
+                    showVerificationStage();
+                } else {
+                    showAlert(data.error || 'Invalid QR code', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // === Code Grid Generation ===
+        function generateCodeOptions() {
+            // In production, this data comes from the backend
+            // For demo, generate random codes
+            const correctCode = generateCode();
+            const decoyCodes = generateDecoyCodes(correctCode);
+            const allCodes = [correctCode, ...decoyCodes].sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('codeGrid');
+            grid.innerHTML = '';
+
+            allCodes.forEach((code, index) => {
+                const option = document.createElement('div');
+                option.className = 'code-option';
+                option.innerHTML = `
+                    <input type="radio" name="code" id="code${index}" value="${code}" required>
+                    <label for="code${index}">${code}</label>
+                `;
+                grid.appendChild(option);
+                codeOptions.push(code);
+            });
+        }
+
+        function generateCode() {
+            const charset = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return code;
+        }
+
+        function generateDecoyCodes(correctCode, count = 3) {
+            const decoys = [];
+            while (decoys.length < count) {
+                const decoy = generateCode();
+                if (decoy !== correctCode && !decoys.includes(decoy)) {
+                    decoys.push(decoy);
+                }
+            }
+            return decoys;
+        }
+
+        // === Stage Management ===
+        function showVerificationStage() {
+            document.getElementById('qrStage').classList.add('hidden');
+            document.getElementById('verificationStage').classList.remove('hidden');
+        }
+
+        function showSuccessStage(enrollmentNo, rollNo) {
+            document.getElementById('verificationStage').classList.add('hidden');
+            document.getElementById('successStage').classList.remove('hidden');
+            document.getElementById('successEnrollment').textContent = enrollmentNo;
+            document.getElementById('successRoll').textContent = rollNo;
+            document.getElementById('successTime').textContent = new Date().toLocaleString();
+        }
+
+        function resetForm() {
+            document.getElementById('successStage').classList.add('hidden');
+            document.getElementById('qrStage').classList.remove('hidden');
+            document.getElementById('submissionForm').reset();
+            document.getElementById('alertContainer').innerHTML = '';
+            currentSessionId = null;
+            currentToken = null;
+        }
+
+        // === Form Submission ===
+        document.getElementById('submissionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const enrollmentNo = document.getElementById('enrollmentNo').value;
+            const rollNo = document.getElementById('rollNo').value;
+            const password = document.getElementById('password').value;
+            const selectedCode = document.querySelector('input[name="code"]:checked')?.value;
+
+            if (!selectedCode) {
+                showAlert('Please select a verification code', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').innerHTML = '<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div>';
+
+                const response = await fetch(`${API_BASE}/student/submit-attendance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        enrollment_no: enrollmentNo,
+                        roll_no: rollNo,
+                        password: password,
+                        selected_code: selectedCode,
+                        device_info: generateDeviceFingerprint(),
+                        user_agent: navigator.userAgent,
+                        token: currentToken,
+                        gps_latitude: null,
+                        gps_longitude: null
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccessStage(enrollmentNo, rollNo);
+                } else {
+                    showAlert(data.message || data.error || 'Submission failed', 'error');
+                    document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('submitBtn').innerHTML = '✓ Mark Attendance';
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerHTML = '✓ Mark Attendance';
+            }
+        });
+
+        function generateDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('Device Fingerprint: ' + navigator.hardwareConcurrency, 2, 15);
+            return canvas.toDataURL();
+        }
+
+        // === Initial Load ===
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Student Portal Ready');
+        });
+    </script>
+</body>
+</html>
